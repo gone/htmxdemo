@@ -1,0 +1,47 @@
+<script src="demo.js"></script>
+<script>
+ document.addEventListener('htmx:beforeSwap', function(evt) {
+     if (evt.detail.xhr.status == 204) {
+         evt.detail.shouldSwap = true;
+     }
+ });
+</script>
+<button hx-get="/foo" hx-target="#result">
+    Count Up
+</button>
+
+<button hx-get="/bad" hx-target="#result2">
+    Count Up stauts 204
+</button>
+
+<button hx-get="/test-header" hx-target="#result">
+    Count Up retarget
+</button>
+
+<output id="result"></output>
+<output id="result2"></output>
+<output id="scratchbox">test</output>
+
+
+<output id="message">not swapped :( </output>
+
+<output id="message204">not swapped :( </output>
+
+<!-- respond to /foo with some dynamic content in a template tag -->
+<script>
+ globalInt = 0;
+</script>
+<template url="/foo" delay="500">
+    ${globalInt++}
+    <div id="message" hx-swap-oob="true">swapped!</div>
+</template>
+
+<template url="/bad" delay="500" status="204">
+    ${globalInt++}
+
+    <div id="message204" hx-swap-oob="true">swapped!</div>
+</template>
+
+<template url="/test-header" delay="500" headers='{"HX-Retarget":"#scratchbox"}'>
+    ${globalInt++}
+</template>
