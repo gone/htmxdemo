@@ -70,14 +70,25 @@
                     if (configDelay) {
                         var delay = Number.parseInt(configDelay);
                     }
+                    var status = elt.getAttribute("status") || '200';
+                    status = parseInt(status);
+                    var headers = elt.getAttribute("headers") || '{}';
+                    headers = JSON.parse(headers);
+                    headers['status'] = status;
                     MockRequests.setDynamicMockUrlResponse(elt.getAttribute("url"),
-                        {dynamicResponseModFn:
-                                function(request, response, parameters) {
-                                    log("demo:request", "A mock request was made: ", request, response, parameters)
-                                    return interpolate(elt.innerHTML, { ...parameters, ...Object.fromEntries(new URLSearchParams(request)) });
-                                },
-                            delay: delay,
-                            usePathnameForAllQueries: true});
+                                                           {
+                                                               dynamicResponseModFn:
+                                                               function(request, response, parameters) {
+                                                                   log("demo:request", "A mock request was made: ", request, response, parameters)
+                                                                   return interpolate(elt.innerHTML, { ...parameters, ...Object.fromEntries(new URLSearchParams(request)) });
+                                                               },
+                                                               responseProperties: {
+                                                                   headers: headers,
+                                                                   status: status,
+                                                               },
+                                                               delay: delay,
+                                                               usePathnameForAllQueries: true
+                                                           });
                 }
             });
 
@@ -91,7 +102,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         disableThings();
         log('demo:mock-request-loading', "loading mock-request library...")
-        addScript("https://unpkg.com/mock-requests@1.3.2/index.js");
+        addScript("https://unpkg.com/mock-requests@1.4.0/index.js");
         initMockRequests();
     }, false);
 })();
